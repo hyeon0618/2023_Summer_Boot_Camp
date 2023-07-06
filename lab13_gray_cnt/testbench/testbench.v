@@ -1,0 +1,30 @@
+`timescale 1ns/1ns
+`define T_CLK 10
+
+module testbench ();
+    
+    reg clk;
+    reg n_rst;
+    wire [2:0] q;
+
+gray_cnt u_gray_cnt(
+    .clk(clk),
+    .n_rst(n_rst),
+    .q(q)
+);
+
+initial begin
+    clk = 1'b1;
+    n_rst = 1'b0;
+    #(`T_CLK * 2.2) n_rst = ~n_rst;
+end
+
+always #(`T_CLK / 2) clk = ~clk;
+
+initial begin
+    wait(n_rst == 1'b1);
+    #(`T_CLK * 20);
+    #(`T_CLK * 5) $stop;
+end
+
+endmodule

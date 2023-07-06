@@ -1,0 +1,9 @@
+module decoder (
+    input [1:0] din,
+    output [3:0] dout
+);
+always @(din)
+dout <= (din == 2'b00)? 4'b1000 :
+        (din == 2'b01)? 4'b0100 :
+        (din == 2'b10)? 4'b0010 : 4'b0001;
+endmodule

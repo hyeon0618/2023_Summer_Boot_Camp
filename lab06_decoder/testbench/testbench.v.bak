@@ -1,0 +1,14 @@
+`timescale 1ns/1ns
+
+module testbench ();
+
+initial begin
+    #10 din = 2'b00
+    #10 din = 2'b00
+    #10 din = 2'b00
+    #10 din = 2'b00
+
+    #10 $stop;
+end
+
+endmodule

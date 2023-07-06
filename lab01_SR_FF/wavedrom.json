@@ -1,0 +1,7 @@
+{ "signal" : [
+  { "name" : "clk", wave : "p.........."},
+  { "name" : "reset", wave : "l.h........"},
+  { "name" : "s", wave : "l...h......"},
+  { "name" : "r", wave : "l..hlh....."},
+  { "name" : "q_t", wave : "l....hx...."}
+]}

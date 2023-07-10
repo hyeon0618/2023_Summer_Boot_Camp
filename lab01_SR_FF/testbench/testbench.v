@@ -20,7 +20,7 @@ sr_ff u_sr_ff(
 initial begin
     clk = 1'b1;
     n_rst = 1'b0;
-    #(`T_CLK * 2.2) n_rst = - n_rst;
+    #(`T_CLK * 2.2) n_rst = !n_rst;
 end
 
 always #(`T_CLK / 2) clk = ~clk;

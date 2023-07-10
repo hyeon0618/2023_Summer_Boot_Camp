@@ -1,0 +1,29 @@
+module full_adder (
+    input a,
+    input b,
+    input c_in,
+    output sum,
+    output carry
+);
+
+wire s1;
+wire c1;
+wire c2;
+
+assign carry = c1 | c2;
+
+half_adder u_half_adder1(
+    .a(a),
+    .b(b)
+    .sum(s1),
+    .carry(c1)
+);
+
+half_adder u_half_adder2(
+    .a(c_in),
+    .b(s1),
+    .sum(sum),
+    .carry(c2)
+);
+    
+endmodule

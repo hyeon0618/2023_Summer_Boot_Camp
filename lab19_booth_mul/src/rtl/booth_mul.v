@@ -3,7 +3,9 @@ module booth_mul (
     input n_rst,
     input [3:0] multiplicant,
     input [3:0] multiplier,
-    output reg [7:0] product //result
+    input start,
+    input fin,
+    output [7:0] product //result
 );
 
 reg [8:0] A; //9bit [3:0] multiplicant 0000 0
@@ -11,9 +13,7 @@ reg [8:0] M; //9bit [3:0] 2'th compliment multiplicant 0000 0
 reg [8:0] P; //9bit 0000 [3:0]multiplier 0
 
 reg [2:0] cnt;
-reg fin;
-reg prev_fin;
-wire e_fin;
+reg [2:0] n_cnt;
 wire [8:0] PA;
 wire [8:0] PM;
 
@@ -32,49 +32,41 @@ always @(posedge clk or negedge n_rst)
 always @(posedge clk or negedge n_rst)
     if(!n_rst)
         cnt <= 3'h0;
-    else
-        cnt <= (cnt < 3'h4)? cnt + 1'b1 : 3'h1;
+    else begin
+        if(start == 1'b1)
+            cnt <= (cnt < 3'h4)? cnt + 1'b1 : 3'h1;
+    end
 
 always @(posedge clk or negedge n_rst)
     if(!n_rst)
-        fin <= 1'b0;
+        n_cnt <= 3'h0;
     else
-        fin <= (cnt == 3'h4)? 1'b1 : 1'b0;
-
-always @(posedge clk or negedge n_rst)
-    if(!n_rst)
-        prev_fin <= 1'b0;
-    else
-        prev_fin <= fin;
-
-assign e_fin = fin & ~prev_fin;
+        n_cnt <= cnt;
 
 always @(posedge clk or negedge n_rst)
     if(!n_rst)
         P <= {4'b0000, multiplier, 1'b0};
     else begin
-        if(e_fin)
+        if(fin == 1'b1)
             P <= P;
-        else if((P[0] == 1'b0 && P[1] == 1'b0))
+        else if((P[0] == 1'b0 && P[1] == 1'b0) && (cnt > 3'h0))
             P <= {P[8], P[8:1]};
-        else if((P[0] == 1'b1 && P[1] == 1'b1))
+        else if((P[0] == 1'b1 && P[1] == 1'b1) && (cnt > 3'h0))
             P <= {P[8], P[8:1]};
-        else if((P[0] == 1'b1 && P[1] == 1'b0)) begin
+        else if((P[0] == 1'b1 && P[1] == 1'b0) && (cnt > 3'h0)) begin
             P <= {PA[8], PA[8:1]};
         end
-        else if((P[0] == 1'b0 && P[1] == 1'b1)) begin
+        else if((P[0] == 1'b0 && P[1] == 1'b1) && (cnt > 3'h0)) begin
             P <= {PM[8], PM[8:1]};
+        end
+        else if(cnt == 3'h1) begin
+            P <= {4'b0000, multiplier, 1'b0};
         end
     end
 
 assign PA = P + A;
 assign PM = P + M;
 
-always @(posedge clk or negedge n_rst)
-    if(!n_rst)
-        product <= 8'h0;
-    else
-        product <= P[8:1];
-
+assign product = P[8:1];
 
 endmodule

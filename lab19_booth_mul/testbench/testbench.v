@@ -7,6 +7,8 @@ reg clk;
 reg n_rst;
 reg [3:0] multiplicant;
 reg [3:0] multiplier;
+reg start;
+reg fin;
 wire [7:0] product;
 
 booth_mul u_booth_mul(
@@ -14,6 +16,8 @@ booth_mul u_booth_mul(
     .n_rst(n_rst),
     .multiplicant(multiplicant),
     .multiplier(multiplier),
+    .start(start),
+    .fin(fin),
     .product(product)
 );
 
@@ -28,9 +32,11 @@ always #(`T_CLK / 2) clk = ~clk;
 initial begin
     multiplicant = 4'b0011;
     multiplier = 4'b1100;
-
+    start = 1'b0;
+    fin = 1'b0;
     wait(n_rst == 1'b1);
-
+    #(`T_CLK * 4) start = 1'b1;
+    #(`T_CLK *5) fin = 1'b1;
     #(`T_CLK * 10) $stop;
 end
 

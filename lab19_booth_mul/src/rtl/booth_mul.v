@@ -1,72 +1,54 @@
 module booth_mul (
     input clk,
     input n_rst,
-    input [3:0] multiplicant,
-    input [3:0] multiplier,
+    input [15:0] M, // multiplicant
+    input [15:0] Q, // multiplier
     input start,
-    input fin,
-    output [7:0] product //result
+    output reg [31:0] result
 );
 
-reg [8:0] A; //9bit [3:0] multiplicant 0000 0
-reg [8:0] M; //9bit [3:0] 2'th compliment multiplicant 0000 0
-reg [8:0] P; //9bit 0000 [3:0]multiplier 0
+reg [32:0] M_33bit;
+reg [32:0] Q_33bit;
 
-reg [2:0] cnt;
-reg [2:0] n_cnt;
-wire [8:0] PA;
-wire [8:0] PM;
+reg [3:0]cnt;
+
+wire [15:0] m_M; // minus M
+wire [32:0] ADD;
+wire [32:0] SUB;
 
 always @(posedge clk or negedge n_rst)
     if(!n_rst)
-        A <= 9'h0;
+        cnt <= 4'hf;
     else
-        A <= {multiplicant, 5'b0000_0};
-
-always @(posedge clk or negedge n_rst)
-    if(!n_rst)
-        M <= 9'h0;
-    else
-        M <= {~multiplicant + 1'b1, 5'b0000_0};
-
-always @(posedge clk or negedge n_rst)
-    if(!n_rst)
-        cnt <= 3'h0;
-    else begin
         if(start == 1'b1)
-            cnt <= (cnt < 3'h4)? cnt + 1'b1 : 3'h1;
-    end
+            cnt <= 4'hf;
+        else
+            cnt <= (cnt == 4'h0)? 4'h0 : cnt - 4'h1;
 
 always @(posedge clk or negedge n_rst)
     if(!n_rst)
-        n_cnt <= 3'h0;
+        M_33bit <= 33'b0;
     else
-        n_cnt <= cnt;
+        M_33bit <= {M, 17'b0};
+
+assign m_M = (~M) + 16'b1;
+assign ADD = Q_33bit + M_33bit;
+assign SUB = Q_33bit + {m_M, 17'b0};
 
 always @(posedge clk or negedge n_rst)
     if(!n_rst)
-        P <= {4'b0000, multiplier, 1'b0};
+        Q_33bit <= {16'b0, Q, 1'b0};
     else begin
-        if(fin == 1'b1)
-            P <= P;
-        else if((P[0] == 1'b0 && P[1] == 1'b0) && (cnt > 3'h0))
-            P <= {P[8], P[8:1]};
-        else if((P[0] == 1'b1 && P[1] == 1'b1) && (cnt > 3'h0))
-            P <= {P[8], P[8:1]};
-        else if((P[0] == 1'b1 && P[1] == 1'b0) && (cnt > 3'h0)) begin
-            P <= {PA[8], PA[8:1]};
-        end
-        else if((P[0] == 1'b0 && P[1] == 1'b1) && (cnt > 3'h0)) begin
-            P <= {PM[8], PM[8:1]};
-        end
-        else if(cnt == 3'h1) begin
-            P <= {4'b0000, multiplier, 1'b0};
-        end
+        if((cnt > 4'h1))
+            Q_33bit <= ((Q_33bit[0] == 1'b0) && (Q_33bit[1] == 1'b0))? {Q_33bit[32], Q_33bit[32:1]} :
+                       ((Q_33bit[0] == 1'b0) && (Q_33bit[1] == 1'b1))? {SUB[32], SUB[32:1]} :
+                       ((Q_33bit[0] == 1'b1) && (Q_33bit[1] == 1'b0))? {ADD[32], ADD[32:1]}: {Q_33bit[32], Q_33bit[32:1]};
     end
 
-assign PA = P + A;
-assign PM = P + M;
-
-assign product = P[8:1];
+always @(posedge clk or negedge n_rst)
+    if(!n_rst)
+        result <= 32'b0;
+    else
+        result <= Q_33bit[32:1];
 
 endmodule

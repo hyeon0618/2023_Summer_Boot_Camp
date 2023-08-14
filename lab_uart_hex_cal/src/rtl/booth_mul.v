@@ -3,8 +3,9 @@ module booth_mul (
     input n_rst,
     input [15:0] M, // multiplicant
     input [15:0] Q, // multiplier
-    input start,
-    output reg [31:0] result
+    input parser_done,
+    output reg [31:0] result,
+    output alu_done
 );
 
 reg [32:0] M_33bit;
@@ -20,11 +21,12 @@ always @(posedge clk or negedge n_rst)
     if(!n_rst)
         cnt <= 4'hf;
     else
-        if(start == 1'b1)
+    begin
+        if(parser_done == 1'b1)
             cnt <= 4'hf;
         else
             cnt <= (cnt == 4'h0)? 4'h0 : cnt - 4'h1;
-
+    end
 always @(posedge clk or negedge n_rst)
     if(!n_rst)
         M_33bit <= 33'b0;
@@ -50,5 +52,7 @@ always @(posedge clk or negedge n_rst)
         result <= 32'b0;
     else
         result <= Q_33bit[32:1];
+
+assign alu_done = (cnt == 4'h0)? 1'b1 : 1'b0;
 
 endmodule

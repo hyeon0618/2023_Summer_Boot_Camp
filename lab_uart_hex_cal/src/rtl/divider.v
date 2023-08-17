@@ -1,63 +1,77 @@
 module divider (
     input clk,
     input n_rst,
-    input [15:0] M, // Divisor
-    input [15:0] D_end, // Dividend
+    input [5:0] M, // Divisor
+    input [5:0] Q, // Dividend
     input parser_done,
-    output reg [15:0] Q, // Quotient
-    output [15:0] R // Remainder
+    output [11:0] result, // Remainder, Quotient
+    output alu_done
 );
+reg [2:0] cnt;
+reg [5:0] A;
+reg [5:0] SQ; //shift Q & Quotient
 
-reg [3:0] cnt;
-reg [15:0] A; // accumulator
-
-wire [15:0] S_A; // shift A
-assign S_A = {A[15:1], 1'b0};
-
-wire [15:0] S_Q; // shift Q
-assign S_Q = {Q[15:1], 1'b0};
-
-wire [15:0] MINUS_M; // -M
-assign MINUS_M =(~M) + 1'b1;
+reg e_parser;
+always @(posedge clk or negedge n_rst)
+    if(!n_rst)
+        e_parser <= 1'b0;
+    else
+        e_parser <= parser_done;
 
 always @(posedge clk or negedge n_rst)
     if(!n_rst)
-        cnt <= 4'b0;
+        cnt <= 3'h0;
+    else begin
+        if(parser_done == 1'b0 && e_parser == 1'b1)
+            cnt <= 3'h1;
+        else if((cnt > 3'h0) && (cnt < 3'h6))
+            cnt <= cnt + 3'h1;
+        else if(cnt == 3'h6)
+            cnt <= 3'h0;
+    end
+
+wire [5:0] SA; // shift A
+assign SA = (e_parser == 1'b0 && parser_done == 1'b1)? {A[4:0], Q[5]} :
+            (e_parser == 1'b1) ? {A[4:0], SQ[4]} :
+            ((cnt > 3'h0) && (cnt < 3'h6))? {A[4:0], SQ[4]} : A;
+
+
+wire [5:0] APM;
+assign APM = SA + M;
+wire [5:0] AMM;
+assign AMM = SA + ((~M) + 1'b1);
+
+always @(posedge clk or negedge n_rst)
+    if(!n_rst)
+        A <= 6'h0;
     else begin
         if(parser_done == 1'b1)
-            cnt <= 4'hf;
-        else
-            cnt <= (cnt == 4'h0)? 4'b0 : cnt - 4'h1;
+            A <=AMM;
+        else if(e_parser == 1'b1)
+            A <= (A[5] == 1'b1)? APM : AMM;
+        else if(((cnt > 3'h0) && (cnt < 3'h6)))
+            A <= (A[5] == 1'b1)? APM : AMM;
+        else if(cnt == 3'h6)
+            A <= (A[5] == 1'b1)? A + M : A;
+        else if(cnt == 3'h0)
+            A <= 6'h0;
     end
 
 always @(posedge clk or negedge n_rst)
     if(!n_rst)
-        A <= 16'b0;
+        SQ <= 6'h0;
     else begin
-        if(cnt != 4'h0) begin
-            if(A[15] == 1'b0)
-                A <= S_A + MINUS_M;
-            else
-                A <= S_A + M;
-        end
-        else begin
-            if(A[15] == 1'b0)
-                A <= A;
-            else
-                A <= A + M;
-        end
+        if(e_parser == 1'b1)
+            SQ <= (A[5] == 1'b1)? {Q[4:0], 1'b0} : {Q[4:0], 1'b1};
+        else if(cnt > 3'h0)
+            SQ <= (A[5] == 1'b1)? {SQ[4:0], 1'b0} : {SQ[4:0], 1'b1};
+        else if(cnt == 5'h0)
+            SQ <= 6'h0;
     end
 
-always @(posedge clk or negedge n_rst)
-    if(!n_rst)
-        Q <= D_end;
-    else begin
-        if(cnt != 4'h0)
-            Q <= (A[15] == 1'b0)? {S_Q[15:1], 1'b1} : {S_Q[15:1], 1'b0}; 
-        else
-            Q <= Q;
-    end
-
-assign R = A;
+wire [5:0] A1;
+assign A1 = (cnt == 3'h6)? A + M : 6'h0;
+assign result = (cnt == 3'h6)? {A1, SQ} : 12'h0;
+assign alu_done = (cnt == 3'h6)? 1'b1 : 1'b0;
 
 endmodule

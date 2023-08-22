@@ -6,8 +6,7 @@ module decoder (
     output reg format,
     output reg [3:0] data_type,
     output reg [4:0] operator,
-    output equal, // end protocol
-    output reg space_bar,
+    //output reg space_bar,
     output reg parser_done,
     output reg [15:0] src1, src2
 );
@@ -19,8 +18,8 @@ always @(posedge clk or negedge n_rst)
         data_type <= 4'b0;
     else begin
         if(dout_valid == 1'b1)
-            data_type <= (data == 8'h53)? 4'h2 : // Signed
-                         (data == 8'h55)? 4'h3 : data_type; // Unsigned
+            data_type <= (data == 8'h53)? 4'h1 : // Signed
+                         (data == 8'h55)? 4'h2 : data_type; // Unsigned
     end
     
 always @(posedge clk or negedge n_rst)
@@ -29,6 +28,7 @@ always @(posedge clk or negedge n_rst)
     else
         format <= (data == 8'h49)? 1'b1 : format; // Integer
 
+reg space_bar;
 always @(posedge clk or negedge n_rst)
     if(!n_rst)
         space_bar <= 1'b0;
@@ -45,7 +45,7 @@ always @(posedge clk or negedge n_rst)
                         (data == 8'h2A)? 5'h03 : // *
                         (data == 8'h2F)? 5'h04 : operator; // /
     end
-
+wire equal;
 assign equal = (data == 8'h3D)? 1'b1 : 1'b0;
 
 // if data is +, -, * or /, op_s is 1'b1

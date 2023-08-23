@@ -5,20 +5,14 @@ module testbench ();
 
 reg clk;
 reg n_rst;
-reg [3:0] M;
-reg [3:0] Q;
-reg parser_done;
-wire [7:0] result;
-wire alu_done;
+reg RXD;
+wire TXD;
 
-divider_un u_divider_un(
+top u_top(
     .clk(clk),
     .n_rst(n_rst),
-    .M(M),
-    .Q(Q),
-    .parser_done(parser_done),
-    .result(result),
-    .alu_done(alu_done)
+    .RXD(RXD),
+    .TXD(TXD)
 );
 
 initial begin
@@ -30,19 +24,86 @@ end
 always #(`T_CLK / 2) clk = ~clk;
 
 initial begin
-    M = 4'd2;
-    Q = 4'd7;
-    parser_done = 1'b0;
+    RXD = 1'b1;
 
     wait(n_rst == 1'b1);
-    #(`T_CLK)parser_done = 1'b1;
-    #(`T_CLK) parser_done = 1'b0;
-    #(`T_CLK * 20) 
-    M = 4'd5;
-    Q = 4'd5;
-    #(`T_CLK) parser_done = 1'b1;
-    #(`T_CLK) parser_done = 1'b0;
-    #(`T_CLK * 20) $stop;
+    #(`T_CLK * 200) RXD = 1'b0;//US
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 5500);
+    #(`T_CLK * 200) RXD = 1'b0;//5
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 5500);
+    #(`T_CLK * 200) RXD = 1'b0;//6
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 5500);
+    #(`T_CLK * 200) RXD = 1'b0;// /
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 5500);
+    #(`T_CLK * 200) RXD = 1'b0;//8
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 5500);
+    /*#(`T_CLK * 200) RXD = 1'b0;//6
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 5500);*/
+     #(`T_CLK * 200) RXD = 1'b0;//=
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b0;
+    #(`T_CLK * 434) RXD = 1'b1;
+    #(`T_CLK * 10000) $stop;
 end
 
 endmodule

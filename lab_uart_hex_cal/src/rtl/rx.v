@@ -40,14 +40,14 @@ always @(posedge clk or negedge n_rst)
         if(rxen == 1'b1) begin
             if(rx_cnt == 4'h0)
                 Dataout <= 8'h0;
-            else if((rx_cnt > 4'h0) && (rx_cnt < 4'hA))
+            else if((rx_cnt > 4'h0) && (rx_cnt < 4'h9))
                 Dataout <= {RXD, Dataout[7:1]};
             else if(rx_cnt == 4'hA)
                 Dataout <= Dataout;
         end
     end
 
-assign Dataout_valid = (rx_cnt == 4'hA)? 1'b1 : 1'b0;
+assign Dataout_valid = ((rx_cnt == 4'hA) && (rxen == 1'b1))? 1'b1 : 1'b0;
 
 
 endmodule

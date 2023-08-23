@@ -6,12 +6,21 @@ module decoder (
     output reg format,
     output reg [3:0] data_type,
     output reg [4:0] operator,
-    //output reg space_bar,
     output reg parser_done,
     output reg [15:0] src1, src2
 );
 
 reg op_s; // operator input signal
+reg n_dout_val;
+reg n_equal;
+
+
+always @(posedge clk or negedge n_rst)
+    if(!n_rst)
+        n_dout_val <= 1'b0;
+    else
+        n_dout_val <= dout_valid;
+
 
 always @(posedge clk or negedge n_rst)
     if(!n_rst)
@@ -45,8 +54,17 @@ always @(posedge clk or negedge n_rst)
                         (data == 8'h2A)? 5'h03 : // *
                         (data == 8'h2F)? 5'h04 : operator; // /
     end
+
+
+
 wire equal;
 assign equal = (data == 8'h3D)? 1'b1 : 1'b0;
+
+always @(posedge clk or negedge n_rst)
+    if(!n_rst)
+        n_equal <= 1'b0;
+    else
+        n_equal <= (equal == 1'b1)? 1'b1 : 1'b0;
 
 // if data is +, -, * or /, op_s is 1'b1
 always @(posedge clk or negedge n_rst)
@@ -88,10 +106,10 @@ always @(posedge clk or negedge n_rst)
     if(!n_rst)
         src1 <= 16'h0;
     else begin
-        if((dout_valid == 1'b1) && (op_s == 1'b0))
+        if((n_dout_val == 1'b1) && (op_s == 1'b0) && (parser_done == 1'b0))
             src1 <= {src1[11:0], src[3:0]};
-        else if(dout_valid == 1'b0)
-            src1 <= 16'h0;
+        /*else if(dout_valid == 1'b0)
+            src1 <= 16'h0;*/
     end
 
 always @(posedge clk or negedge n_rst)
@@ -123,30 +141,21 @@ always @(posedge clk or negedge n_rst)
     if(!n_rst)
         src2 <= 16'h0;
     else begin
-        if((dout_valid == 1'b1) && (op_s == 1'b1))
+        if((n_dout_val == 1'b1) && (op_s == 1'b1))
             src2 <= {src2[11:0], src0[3:0]};
-        else if(dout_valid == 1'b0)
-            src2 <= 16'h0;
+        /*else if(dout_valid == 1'b0)
+            src2 <= 16'h0;*/
     end
 
 always @(posedge clk or negedge n_rst)
     if(!n_rst)
         parser_done <= 1'b0;
     else begin
-        if(equal == 1'b1)
+        if(equal == 1'b1 && n_equal == 1'b0)
             // if operator is '=', parser_done is 1'b1
             parser_done <= 1'b1;
         else
             parser_done <= 1'b0;
     end
-
-
-
-reg [31:0] result;
-always @(posedge clk or negedge n_rst)
-    if(!n_rst)
-        result <= 32'b0;
-    else if((operator == 5'h01) && (parser_done == 1'b1))
-        result <= src1 + src2;
     
 endmodule

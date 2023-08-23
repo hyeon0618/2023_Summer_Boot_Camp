@@ -24,22 +24,22 @@ always @(posedge clk or negedge n_rst)
     else begin
         if(parser_done == 1'b0 && e_parser == 1'b1)
             cnt <= 5'h1;
-        else if((cnt > 5'h0) && (cnt < 3'h10))
+        else if((cnt > 5'h0) && (cnt < 5'h10))
             cnt <= cnt + 5'h1;
         else if(cnt == 5'h10)
             cnt <= 5'h0;
     end
 
-wire [5:0] SA; // shift A
+wire [15:0] SA; // shift A
 assign SA = (e_parser == 1'b0 && parser_done == 1'b1)? {A[14:0], Q[15]} :
             (e_parser == 1'b1) ? {A[14:0], SQ[14]} :
             ((cnt > 5'h0) && (cnt < 5'h10))? {A[14:0], SQ[14]} : A;
 
 
 wire [15:0] APM;
-assign APM = SA + M;
+assign APM = (e_parser == 1'b1)? SA + M : 16'h0;
 wire [15:0] AMM;
-assign AMM = SA + ((~M) + 1'b1);
+assign AMM = (e_parser == 1'b1)? SA + ((~M) + 1'b1) : 16'h0;
 
 always @(posedge clk or negedge n_rst)
     if(!n_rst)

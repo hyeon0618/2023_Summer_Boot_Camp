@@ -9,28 +9,28 @@ module alu (
     output alu_done,
     output reg [31:0] calc_res
 );
-wire [31:0] calc_res1, calc_res2, calc_res3, calc_res4, calc_res5, calc_res6;
+wire [31:0] calc_res3, calc_res4, calc_res5, calc_res6;
 
 always @(posedge clk or negedge n_rst)
     if(!n_rst)
         calc_res <= 32'h0;
     else begin
         if(dtype == 4'h1) begin // Signed
-            if(operator == 5'h01)
-                calc_res <= calc_res1;
-            else if(operator == 5'h02)
-                calc_res <= calc_res2;
-            else if(operator == 5'h03)
+            //if(operator == 5'h01)
+                //calc_res <= calc_res1;
+            //else if(operator == 5'h02)
+                //calc_res <= calc_res2;
+            if(operator == 5'h03)
                 calc_res <= calc_res3;
             else if(operator == 5'h04)
                 calc_res <= calc_res5;
         end
         else if(dtype == 4'h2) begin
-            if(operator == 5'h01)
-                calc_res <= calc_res1;
-            else if(operator == 5'h02)
-                calc_res <= calc_res2;
-            else if(operator == 5'h03)
+            //if(operator == 5'h01)
+                //calc_res <= calc_res1;
+            //else if(operator == 5'h02)
+                //calc_res <= calc_res2;
+            if(operator == 5'h03)
                 calc_res <= calc_res4;
             else if(operator == 5'h04)
                 calc_res <= calc_res6;
@@ -38,7 +38,7 @@ always @(posedge clk or negedge n_rst)
     end
 
 
-rca_32bit u_rca_32bit(
+/*rca_32bit u_rca_32bit(
     .a(src1),
     .b(src2),
     .c_in(),
@@ -52,7 +52,7 @@ rca_sub32 u_rca_sub32(
     .c_in(),
     .sum(calc_res2),
     .c_out()
-);
+);*/
 
 booth_mul u_booth_mul(
     .clk(clk),

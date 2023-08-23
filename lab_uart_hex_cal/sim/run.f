@@ -1,2 +1,10 @@
+../src/rtl/rx.v
+../src/rtl/tx.v
+../src/rtl/decoder.v
+../src/rtl/alu.v
+../src/rtl/booth_mul.v
+../src/rtl/unsigned_mul.v
+../src/rtl/divider.v
 ../src/rtl/divider_un.v
+../src/rtl/top.v
 ../testbench/testbench.v

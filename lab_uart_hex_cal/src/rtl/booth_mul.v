@@ -39,8 +39,10 @@ assign SUB = Q_33bit + {m_M, 17'b0};
 
 always @(posedge clk or negedge n_rst)
     if(!n_rst)
-        Q_33bit <= {16'b0, Q, 1'b0};
+        Q_33bit <= 33'h0;
     else begin
+        if(parser_done == 1'b1)
+            Q_33bit <= {16'b0, Q, 1'b0};
         if((cnt > 4'h1))
             Q_33bit <= ((Q_33bit[0] == 1'b0) && (Q_33bit[1] == 1'b0))? {Q_33bit[32], Q_33bit[32:1]} :
                        ((Q_33bit[0] == 1'b0) && (Q_33bit[1] == 1'b1))? {SUB[32], SUB[32:1]} :
